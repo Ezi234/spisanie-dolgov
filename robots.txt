@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ezi234.github.io/spisanie-dolgov/sitemap.xml
