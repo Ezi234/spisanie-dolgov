@@ -539,6 +539,18 @@ const CONTACTS = {
     if (!fine) $('#openMax').setAttribute('href', 'https://max.ru/');
   }
 
+  /* ---------- Два номера: «Позвонить» без номера спрашивает, на какой ---------- */
+  const callModal = $('#callModal');
+  if (callModal && typeof callModal.showModal === 'function') {
+    $$('[data-call]').forEach((a) => a.addEventListener('click', (e) => {
+      e.preventDefault();
+      setFab(false);
+      if (!callModal.open) callModal.showModal();
+    }));
+    $$('[data-close]', callModal).forEach((b) => b.addEventListener('click', () => callModal.close()));
+    callModal.addEventListener('click', (e) => { if (e.target === callModal) callModal.close(); });
+  }
+
   // Копирование: сначала синхронно (надёжно сразу после нажатия,
   // даже если следом откроется новая вкладка), потом через Clipboard API.
   function copySync(text) {
