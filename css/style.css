@@ -70,6 +70,8 @@ b { font-weight: 700; }
 :focus-visible { outline: 3px solid rgba(0, 153, 0, .45); outline-offset: 3px; border-radius: 8px; }
 
 .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+/* Временное поле для копирования текста: вне экрана, но выделяемое */
+.offscreen { position: fixed; left: -9999px; top: 0; width: 2px; height: 2px; opacity: 0; }
 .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 .skip-link { position: absolute; left: 12px; top: -60px; z-index: 200; background: var(--green); color: #fff; padding: 10px 16px; border-radius: 10px; transition: top .2s; }
 .skip-link:focus { top: 12px; }
@@ -720,6 +722,147 @@ b { font-weight: 700; }
 }
 .toast.is-shown { transform: translate(-50%, 0); opacity: 1; }
 
+/* ---------------- Конфетти на первом экране ---------------- */
+.confetti { position: absolute; left: -10%; top: -10%; width: 120%; height: 120%; pointer-events: none; z-index: 4; }
+
+/* ---------------- Бегущие ленты ---------------- */
+.ribbons { position: relative; height: 150px; margin: 30px 0 -24px; overflow: hidden; pointer-events: none; }
+.ribbon { position: absolute; left: -4%; right: -4%; top: 50%; padding: 15px 0; overflow: hidden; white-space: nowrap; }
+.ribbon--front { z-index: 2; background: linear-gradient(90deg, var(--green-dark), var(--green) 30%, var(--green-2)); color: #fff; transform: translateY(-50%) rotate(-2.4deg); box-shadow: 0 18px 30px -18px rgba(0, 90, 0, .8); }
+.ribbon--back { background: var(--ink); color: rgba(255, 255, 255, .82); transform: translateY(-50%) rotate(2.4deg); }
+.ribbon__track { display: inline-flex; align-items: center; gap: 22px; padding-right: 22px; animation: marquee 40s linear infinite; }
+.ribbon--back .ribbon__track { animation-duration: 52s; animation-direction: reverse; }
+.ribbon__track span { font-weight: 700; font-size: 19px; text-transform: uppercase; letter-spacing: .05em; }
+.ribbon__track .rl { padding: 3px 12px; border-radius: 8px; background: rgba(255, 255, 255, .2); }
+.ribbon--back .ribbon__track .rl { background: var(--wine); color: #fff; }
+.ribbon__track b { position: relative; flex: none; width: 24px; height: 24px; border-radius: 50%; background: #fff; }
+.ribbon__track b::after { content: ""; position: absolute; left: 8px; top: 4px; width: 6px; height: 11px; border: solid var(--green); border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.ribbon__track i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: #e04848; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* ---------------- Мифы ---------------- */
+.myths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.myth { display: block; width: 100%; height: 250px; text-align: left; perspective: 1100px; border-radius: var(--radius); }
+.myth__inner { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .85s cubic-bezier(.3, 1.25, .4, 1); }
+.myth.is-flipped .myth__inner { transform: rotateY(180deg); }
+.myth__face {
+  position: absolute; inset: 0; overflow: hidden;
+  display: flex; flex-direction: column;
+  padding: 26px; border-radius: var(--radius);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.myth__face--front { background: var(--bg-2); border: 1.5px dashed #c6d0d6; }
+.myth__face--front::after { content: "?"; position: absolute; right: 18px; bottom: -34px; font-size: 150px; font-weight: 800; line-height: 1; color: rgba(146, 22, 22, .07); transition: transform .6s var(--ease); }
+.myth__face--back { background: linear-gradient(150deg, #10b010, var(--green) 50%, #057a14); color: #fff; transform: rotateY(180deg); box-shadow: var(--shadow-lg); }
+.myth__face--back::after { content: ""; position: absolute; width: 200px; height: 200px; right: -80px; top: -90px; border-radius: 50%; background: radial-gradient(rgba(255, 255, 255, .22), transparent 70%); }
+.myth__tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #fdeaea; color: var(--wine); font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 18px; }
+.myth__tag svg { width: 15px; height: 15px; }
+.myth__tag--true { background: rgba(255, 255, 255, .2); color: #fff; }
+.myth__text { position: relative; z-index: 1; font-size: 22px; font-weight: 700; line-height: 1.25; }
+.myth__hint { margin-top: auto; display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-weight: 600; font-size: 15px; }
+.myth__hint svg { width: 18px; height: 18px; transition: transform .3s var(--ease); }
+.myth__answer { position: relative; z-index: 1; font-size: 16.5px; line-height: 1.5; }
+.myth:focus-visible { outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .myth:hover .myth__inner { transform: rotateY(180deg); }
+  .myth:hover .myth__face--front::after { transform: rotate(20deg) scale(1.1); }
+}
+
+/* ---------------- Почему мы ---------------- */
+.why { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.why__card { background: var(--white); border-radius: var(--radius); padding: 26px 24px; box-shadow: var(--shadow); transition: transform .4s var(--ease), box-shadow .4s; }
+.why__card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.why__ico { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 18px; background: linear-gradient(140deg, var(--green-2), var(--green)); color: #fff; box-shadow: 0 12px 22px -10px rgba(0, 153, 0, .7); transition: transform .5s cubic-bezier(.3, 1.6, .5, 1); }
+.why__ico svg { width: 26px; height: 26px; }
+.why__card:hover .why__ico { transform: rotate(-10deg) scale(1.1); }
+.why__card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.why__card p { font-size: 15px; color: var(--ink-2); }
+
+.why__avito {
+  position: relative; overflow: hidden; isolation: isolate;
+  grid-column: 1 / -1;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 22px;
+  padding: 26px 30px; border-radius: var(--radius);
+  background: var(--white); box-shadow: var(--shadow);
+  transition: transform .4s var(--ease), box-shadow .4s;
+}
+.why__avito:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.why__avito-logo { width: 68px; height: 68px; border-radius: 20px; box-shadow: inset 0 0 0 1px var(--line); transition: transform .6s cubic-bezier(.3, 1.6, .5, 1); }
+.why__avito:hover .why__avito-logo { transform: rotate(-12deg) scale(1.08); }
+.why__avito-text { color: var(--ink-2); font-size: 15.5px; }
+.why__avito-text b { display: block; font-size: 21px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
+.why__avito-go { display: inline-flex; align-items: center; gap: 10px; padding: 15px 22px; border-radius: 14px; background: var(--ink); color: #fff; font-weight: 600; white-space: nowrap; transition: background-color .3s; }
+.why__avito-go svg { width: 20px; height: 20px; transition: transform .3s var(--ease); }
+.why__avito:hover .why__avito-go { background: #00a2f5; }
+.why__avito:hover .why__avito-go svg { transform: translateX(4px); }
+.why__avito-dots { position: absolute; inset: 0; z-index: -1; }
+.why__avito-dots i { position: absolute; border-radius: 50%; opacity: .14; animation: bob 7s ease-in-out infinite; }
+.why__avito-dots i:nth-child(1) { width: 120px; height: 120px; right: 22%; top: -50px; background: #04e061; }
+.why__avito-dots i:nth-child(2) { width: 70px; height: 70px; right: 14%; bottom: -26px; background: #ff4053; animation-delay: -2s; }
+.why__avito-dots i:nth-child(3) { width: 40px; height: 40px; right: 30%; bottom: 14px; background: #965eeb; animation-delay: -4s; }
+.why__avito-dots i:nth-child(4) { width: 90px; height: 90px; right: 6%; top: -30px; background: #00aaff; animation-delay: -1s; }
+
+/* Вопросы теперь на белом фоне */
+.section--white .faq__item { background: var(--bg-2); box-shadow: none; }
+.section--white .faq__item.is-open { background: var(--white); box-shadow: var(--shadow); }
+.section--white .faq__plus { background: var(--white); }
+
+/* ---------------- Заявка ---------------- */
+.contacts-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 20px; align-items: start; }
+/* Карточки связи «едут» рядом с длинной формой */
+.contacts-wrap .contacts { grid-template-columns: 1fr 1fr; position: sticky; top: calc(var(--header-h) + 20px); }
+.lead { padding: 30px; display: grid; gap: 16px; }
+.lead__head h3 { font-size: 24px; line-height: 1.2; font-weight: 800; margin: 2px 0 6px; }
+.lead__head p { color: var(--ink-2); }
+.lead__head .badge { margin-bottom: 12px; }
+.field { display: grid; gap: 7px; }
+.field__label { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.field__label em { font-style: normal; font-weight: 400; color: var(--muted); }
+.field__input {
+  width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+  background-color: var(--bg-2); border: 1.5px solid transparent; border-radius: 12px;
+  padding: 14px 16px;
+  transition: border-color .2s, background-color .2s, box-shadow .2s;
+}
+.field__input::placeholder { color: #9aa2ab; }
+.field__input:hover { border-color: var(--line); }
+.field__input:focus { outline: none; border-color: var(--green); background-color: #fff; box-shadow: 0 0 0 4px rgba(0, 153, 0, .12); }
+select.field__input {
+  appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 44px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 22px) 52%, calc(100% - 16px) 52%;
+  background-size: 6px 6px; background-repeat: no-repeat;
+}
+textarea.field__input { resize: vertical; min-height: 88px; line-height: 1.5; }
+.field.is-error .field__input { border-color: var(--wine-2); background-color: #fff6f6; animation: shake .4s; }
+@keyframes shake { 20%, 60% { translate: -6px 0; } 40%, 80% { translate: 6px 0; } }
+
+.lead__preview { border-radius: 16px; padding: 14px 16px 16px; background: linear-gradient(160deg, var(--mint), var(--mint-2)); }
+.lead__preview-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.lead__bubble { position: relative; margin-top: 8px; padding: 12px 14px; border-radius: 16px 16px 16px 4px; background: #fff; font-size: 14.5px; line-height: 1.5; white-space: pre-line; box-shadow: 0 6px 16px -10px rgba(0, 0, 0, .3); }
+.lead__bubble.is-bump { animation: bump .3s var(--ease); }
+@keyframes bump { 50% { scale: 1.012; } }
+.lead__err { color: var(--wine); font-weight: 600; font-size: 14.5px; }
+.lead__send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.lead__send .btn { flex: 1 1 210px; }
+.lead__to { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.lead__to svg { width: 54px; height: 54px; border-radius: 16px; transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), box-shadow .3s; }
+.lead__to:hover svg { transform: translateY(-3px) scale(1.06); box-shadow: 0 12px 20px -10px rgba(0, 0, 0, .4); }
+.lead__note { font-size: 13.5px; color: var(--muted); }
+/* SMS — для телефонов; на компьютере вместо неё кнопка «Скопировать» */
+.lead__copy { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .lead__sms { display: none; }
+  .lead__copy { display: inline-flex; }
+}
+
+.btn--soft { background: var(--green-soft); color: var(--green-dark); }
+.btn--soft:hover { background: #cdeed4; }
+#quizToLead { display: flex; width: 100%; margin-bottom: 14px; }
+
+/* ---------------- Нижняя панель на телефоне ---------------- */
+.mbar { display: none; }
+
 /* ---------------- Появление при прокрутке ----------------
    Анимируем opacity и translate, а не transform: иначе
    появление перебило бы наклон и подъём карточек при наведении. */
@@ -764,6 +907,9 @@ b { font-weight: 700; }
   .faq-wrap { grid-template-columns: 1fr; gap: 10px; }
   .faq-wrap__head { position: static; margin-bottom: 20px; }
   .contacts { grid-template-columns: repeat(2, 1fr); }
+  .contacts-wrap { grid-template-columns: 1fr; }
+  .myths { grid-template-columns: repeat(2, 1fr); }
+  .why { grid-template-columns: repeat(2, 1fr); }
   .alarm__inner { grid-template-columns: auto 1fr; }
   .alarm__cta { grid-column: 1 / -1; }
 }
@@ -841,7 +987,54 @@ b { font-weight: 700; }
   .contact__go { position: static; margin-left: auto; flex: none; }
   .contact__body b { font-size: 17px; }
   .footer__contacts { align-items: flex-start; margin-right: 0; }
-  .footer { padding-bottom: 96px; }
+
+  .ribbons { height: 110px; margin: 22px 0 -18px; }
+  .ribbon { padding: 11px 0; }
+  .ribbon__track { gap: 14px; padding-right: 14px; }
+  .ribbon__track span { font-size: 14.5px; }
+  .ribbon__track b { width: 20px; height: 20px; }
+  .ribbon__track b::after { left: 7px; top: 3px; width: 5px; height: 10px; }
+
+  .myths, .why { grid-template-columns: 1fr; }
+  .myth { height: 220px; }
+  .myth__face { padding: 22px; }
+  .myth__text { font-size: 20px; }
+  .myth__answer { font-size: 15.5px; }
+  .why__avito { grid-template-columns: auto 1fr; padding: 22px; gap: 16px; }
+  .why__avito-logo { width: 56px; height: 56px; border-radius: 16px; }
+  .why__avito-go { grid-column: 1 / -1; justify-content: center; }
+  .why__avito-text b { font-size: 18px; }
+
+  .lead { padding: 22px 18px; }
+  .lead__head h3 { font-size: 21px; }
+  .lead__send { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .lead__send .btn { grid-column: 1 / -1; }
+  .lead__to { flex-direction: row; justify-content: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--bg-2); font-size: 15px; color: var(--ink); }
+  .lead__to svg { width: 38px; height: 38px; border-radius: 11px; }
+  .contacts-wrap .contacts { grid-template-columns: 1fr; }
+
+  /* На телефоне связь — нижней панелью, плавающая кнопка не нужна */
+  .fab { display: none; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .totop { bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .toast { bottom: calc(90px + env(safe-area-inset-bottom)); }
+  .mbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 95;
+    display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 10px;
+    padding: 9px 14px calc(9px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, .95);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -12px 30px -20px rgba(0, 0, 0, .4);
+    transform: translateY(110%);
+    transition: transform .45s var(--ease);
+  }
+  .mbar.is-shown { transform: none; }
+  .mbar__call { display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; border-radius: 14px; background: var(--green); color: #fff; font-weight: 700; font-size: 16px; box-shadow: 0 10px 20px -10px rgba(0, 153, 0, .8); }
+  .mbar__call svg { width: 20px; height: 20px; animation: ringBell 2.4s ease-in-out infinite; transform-origin: 50% 50%; }
+  .mbar__ico { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; font-weight: 600; color: var(--ink-2); }
+  .mbar__ico svg { width: 36px; height: 36px; border-radius: 11px; }
+  .mbar__ico--avito svg { box-shadow: inset 0 0 0 1px var(--line); }
   .fab { right: 16px; bottom: 16px; }
   .fab__btn { width: 58px; height: 58px; }
   .fab__hint { display: none; }

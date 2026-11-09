@@ -26,6 +26,25 @@
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/geologica-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
+
+<!-- Карточка организации для Яндекса и Google. Это данные, а не скрипт:
+     браузер его не выполняет, поэтому CSP он не нарушает. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LegalService",
+  "name": "Чистый лист — списание долгов и банкротство физических лиц",
+  "url": "https://ezi234.github.io/spisanie-dolgov/",
+  "image": "https://ezi234.github.io/spisanie-dolgov/img/og-cover.jpg",
+  "telephone": "+7-900-973-60-05",
+  "address": { "@type": "PostalAddress", "addressLocality": "Луганск", "addressCountry": "RU" },
+  "areaServed": ["Луганск", "Луганская Народная Республика", "Россия"],
+  "sameAs": [
+    "https://vk.ru/koksana22",
+    "https://www.avito.ru/lugansk/predlozheniya_uslug/spisanie_dolgov_bankrotstvo_3468476527"
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -203,6 +222,7 @@
         <div class="debt__stamp" id="debtStamp"><span>Долги</span><b>списаны</b></div>
       </div>
 
+      <canvas class="confetti" id="confetti"></canvas>
       <div class="chip chip--1"><svg><use href="#i-bell-off"/></svg>Коллекторы не звонят</div>
       <div class="chip chip--2"><svg><use href="#i-wallet"/></svg>Зарплата без удержаний</div>
       <div class="chip chip--3"><svg><use href="#i-home"/></svg>Жильё остаётся с вами</div>
@@ -219,6 +239,24 @@
     <div class="stat reveal"><b><span data-count="1000000">1 000 000</span> ₽</b><span>— до этой суммы возможно бесплатное банкротство через МФЦ</span></div>
   </div>
 </section>
+
+<!-- ================= БЕГУЩИЕ ЛЕНТЫ =================
+     Две ленты крест-накрест: что списываем и что останавливаем.
+     Текст продублирован, чтобы прокрутка шла без шва. -->
+<div class="ribbons" aria-hidden="true">
+  <div class="ribbon ribbon--back">
+    <div class="ribbon__track">
+      <span class="rl">Останавливаем</span><i></i><span>звонки коллекторов</span><i></i><span>удержания из зарплаты</span><i></i><span>аресты счетов</span><i></i><span>начисление пеней</span><i></i>
+      <span class="rl">Останавливаем</span><i></i><span>звонки коллекторов</span><i></i><span>удержания из зарплаты</span><i></i><span>аресты счетов</span><i></i><span>начисление пеней</span><i></i>
+    </div>
+  </div>
+  <div class="ribbon ribbon--front">
+    <div class="ribbon__track">
+      <span class="rl">Списываем</span><b></b><span>кредиты</span><b></b><span>микрозаймы</span><b></b><span>кредитные карты</span><b></b><span>долги по ЖКХ</span><b></b><span>займы по распискам</span><b></b><span>автокредиты</span><b></b>
+      <span class="rl">Списываем</span><b></b><span>кредиты</span><b></b><span>микрозаймы</span><b></b><span>кредитные карты</span><b></b><span>долги по ЖКХ</span><b></b><span>займы по распискам</span><b></b><span>автокредиты</span><b></b>
+    </div>
+  </div>
+</div>
 
 <!-- ================= ЧТО ВЫ ПОЛУЧАЕТЕ ================= -->
 <section class="section" id="benefits">
@@ -438,6 +476,96 @@
   </div>
 </section>
 
+<!-- ================= МИФЫ =================
+     Карточки переворачиваются в 3D: наведение мышью или нажатие пальцем. -->
+<section class="section section--white" id="myths">
+  <div class="container">
+    <h2 class="h2 reveal">Мифы о банкротстве, которые мешают начать</h2>
+    <p class="section__lead reveal">Наведите курсор или нажмите на карточку — узнаете, как всё на самом деле</p>
+
+    <div class="myths">
+      <button class="myth reveal" type="button" aria-pressed="false">
+        <span class="myth__inner">
+          <span class="myth__face myth__face--front">
+            <span class="myth__tag">Миф</span>
+            <span class="myth__text">«Заберут единственную квартиру»</span>
+            <span class="myth__hint">Узнать правду<svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+          </span>
+          <span class="myth__face myth__face--back">
+            <span class="myth__tag myth__tag--true"><svg aria-hidden="true"><use href="#i-check"/></svg>Правда</span>
+            <span class="myth__answer">Единственное жильё не продают, если оно не в ипотеке. Это прямо закреплено в ст. 446 ГПК РФ.</span>
+          </span>
+        </span>
+      </button>
+      <button class="myth reveal" type="button" aria-pressed="false">
+        <span class="myth__inner">
+          <span class="myth__face myth__face--front">
+            <span class="myth__tag">Миф</span>
+            <span class="myth__text">«Банкротство — это судимость»</span>
+            <span class="myth__hint">Узнать правду<svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+          </span>
+          <span class="myth__face myth__face--back">
+            <span class="myth__tag myth__tag--true"><svg aria-hidden="true"><use href="#i-check"/></svg>Правда</span>
+            <span class="myth__answer">Это гражданская процедура, а не уголовная. Отвечать придётся только за обман: сокрытие имущества или фиктивное банкротство.</span>
+          </span>
+        </span>
+      </button>
+      <button class="myth reveal" type="button" aria-pressed="false">
+        <span class="myth__inner">
+          <span class="myth__face myth__face--front">
+            <span class="myth__tag">Миф</span>
+            <span class="myth__text">«Отберут всю зарплату»</span>
+            <span class="myth__hint">Узнать правду<svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+          </span>
+          <span class="myth__face myth__face--back">
+            <span class="myth__tag myth__tag--true"><svg aria-hidden="true"><use href="#i-check"/></svg>Правда</span>
+            <span class="myth__answer">Вам и детям оставляют прожиточный минимум. А после завершения процедуры вся зарплата снова ваша.</span>
+          </span>
+        </span>
+      </button>
+      <button class="myth reveal" type="button" aria-pressed="false">
+        <span class="myth__inner">
+          <span class="myth__face myth__face--front">
+            <span class="myth__tag">Миф</span>
+            <span class="myth__text">«Кредит больше никогда не дадут»</span>
+            <span class="myth__hint">Узнать правду<svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+          </span>
+          <span class="myth__face myth__face--back">
+            <span class="myth__tag myth__tag--true"><svg aria-hidden="true"><use href="#i-check"/></svg>Правда</span>
+            <span class="myth__answer">Брать кредиты можно. Просто 5 лет нужно сообщать банку, что вы проходили банкротство.</span>
+          </span>
+        </span>
+      </button>
+      <button class="myth reveal" type="button" aria-pressed="false">
+        <span class="myth__inner">
+          <span class="myth__face myth__face--front">
+            <span class="myth__tag">Миф</span>
+            <span class="myth__text">«Долги перейдут на родственников»</span>
+            <span class="myth__hint">Узнать правду<svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+          </span>
+          <span class="myth__face myth__face--back">
+            <span class="myth__tag myth__tag--true"><svg aria-hidden="true"><use href="#i-check"/></svg>Правда</span>
+            <span class="myth__answer">Родственники не платят по вашим долгам, если они не поручители, не созаёмщики и долг не общий с супругом.</span>
+          </span>
+        </span>
+      </button>
+      <button class="myth reveal" type="button" aria-pressed="false">
+        <span class="myth__inner">
+          <span class="myth__face myth__face--front">
+            <span class="myth__tag">Миф</span>
+            <span class="myth__text">«Это стоит огромных денег»</span>
+            <span class="myth__hint">Узнать правду<svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+          </span>
+          <span class="myth__face myth__face--back">
+            <span class="myth__tag myth__tag--true"><svg aria-hidden="true"><use href="#i-check"/></svg>Правда</span>
+            <span class="myth__answer">Через МФЦ процедура бесплатная. В суде обязательные расходы — 300 ₽ пошлины и 25 000 ₽ управляющему, плюс публикации.</span>
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+</section>
+
 <!-- ================= ТЕСТ ================= -->
 <section class="section" id="quiz">
   <div class="container">
@@ -503,6 +631,7 @@
             <a class="iconbtn" href="https://vk.ru/koksana22" data-contact="vk" target="_blank" rel="noopener" aria-label="Написать во ВКонтакте"><svg aria-hidden="true"><use href="#i-vk"/></svg></a>
             <a class="iconbtn iconbtn--avito" href="https://www.avito.ru/lugansk/predlozheniya_uslug/spisanie_dolgov_bankrotstvo_3468476527" data-contact="avito" target="_blank" rel="noopener" aria-label="Наше объявление на Авито"><svg aria-hidden="true"><use href="#i-avito"/></svg></a>
           </div>
+          <button type="button" class="btn btn--soft" id="quizToLead"><svg aria-hidden="true"><use href="#i-doc"/></svg>Отправить ответы юристу</button>
           <button type="button" class="link-btn" id="quizRestart">Пройти заново</button>
         </div>
 
@@ -529,8 +658,46 @@
   </div>
 </section>
 
+<!-- ================= ПОЧЕМУ МЫ ================= -->
+<section class="section" id="why">
+  <div class="container">
+    <h2 class="h2 reveal">Почему с нами спокойно</h2>
+    <p class="section__lead reveal">Банкротство — это несколько месяцев работы. Важно, чтобы рядом был тот, кому можно доверять</p>
+
+    <div class="why">
+      <article class="why__card reveal">
+        <span class="why__ico"><svg aria-hidden="true"><use href="#i-doc"/></svg></span>
+        <h3>Цена и сроки в договоре</h3>
+        <p>Называем стоимость до начала работы и не меняем её по ходу дела.</p>
+      </article>
+      <article class="why__card reveal">
+        <span class="why__ico"><svg aria-hidden="true"><use href="#i-shield"/></svg></span>
+        <h3>Честно о рисках</h3>
+        <p>Если банкротство вам не подходит или опасно для имущества — скажем сразу.</p>
+      </article>
+      <article class="why__card reveal">
+        <span class="why__ico"><svg aria-hidden="true"><use href="#i-home"/></svg></span>
+        <h3>Всё можно из дома</h3>
+        <p>Документы — фотографиями, общение — по телефону, в МАКС и ВКонтакте.</p>
+      </article>
+      <article class="why__card reveal">
+        <span class="why__ico"><svg aria-hidden="true"><use href="#i-chat"/></svg></span>
+        <h3>На связи на каждом этапе</h3>
+        <p>Отвечаем на вопросы и сообщаем о каждом шаге процедуры.</p>
+      </article>
+
+      <a class="why__avito reveal" href="https://www.avito.ru/lugansk/predlozheniya_uslug/spisanie_dolgov_bankrotstvo_3468476527" data-contact="avito" target="_blank" rel="noopener">
+        <span class="why__avito-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <svg class="why__avito-logo" aria-hidden="true"><use href="#i-avito"/></svg>
+        <span class="why__avito-text"><b>Мы на Авито</b>Подробное описание услуги и чат с юристом прямо в Авито</span>
+        <span class="why__avito-go">Открыть объявление<svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- ================= ВОПРОСЫ ================= -->
-<section class="section" id="faq">
+<section class="section section--white" id="faq">
   <div class="container faq-wrap">
     <div class="faq-wrap__head">
       <h2 class="h2 reveal">Частые вопросы о банкротстве физических лиц</h2>
@@ -579,8 +746,55 @@
 <!-- ================= КОНТАКТЫ ================= -->
 <section class="section section--contacts" id="contacts">
   <div class="container">
-    <h2 class="h2 reveal">Выберите удобный способ связи</h2>
+    <h2 class="h2 reveal">Оставьте заявку или напишите сами</h2>
     <p class="section__lead reveal">Юрист бесплатно разберёт вашу ситуацию и подскажет, как списать долги без рисков</p>
+
+    <div class="contacts-wrap">
+    <!-- Заявка без сервера: страница сама составляет текст сообщения,
+         а человек отправляет его по SMS, в МАКС или ВКонтакте.
+         Данные никуда не уходят, пока человек сам не нажмёт «отправить». -->
+    <form class="lead panel reveal" id="leadForm" novalidate>
+      <div class="lead__head">
+        <span class="badge">Займёт 30 секунд</span>
+        <h3>Заявка на бесплатную консультацию</h3>
+        <p>Заполните два поля — сообщение для юриста составится само.</p>
+      </div>
+
+      <label class="field">
+        <span class="field__label">Как к вам обращаться</span>
+        <input class="field__input" type="text" name="name" id="leadName" maxlength="40" autocomplete="given-name" placeholder="Например, Анна" required>
+      </label>
+      <label class="field">
+        <span class="field__label">Сумма долгов</span>
+        <select class="field__input" name="sum" id="leadSum">
+          <option value="">Выберите</option>
+          <option value="a">до 25 000 ₽</option>
+          <option value="b">25 000 – 500 000 ₽</option>
+          <option value="c">500 000 – 1 000 000 ₽</option>
+          <option value="d">больше 1 000 000 ₽</option>
+          <option value="x">не знаю точно</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="field__label">Коротко о ситуации <em>— необязательно</em></span>
+        <textarea class="field__input" name="note" id="leadNote" rows="3" maxlength="400" placeholder="Например: 3 кредита и микрозайм, звонят коллекторы"></textarea>
+      </label>
+
+      <div class="lead__preview" aria-live="polite">
+        <span class="lead__preview-label">Ваше сообщение</span>
+        <p class="lead__bubble" id="leadPreview"></p>
+      </div>
+
+      <p class="lead__err" id="leadErr" role="alert" hidden>Напишите, пожалуйста, как к вам обращаться</p>
+
+      <div class="lead__send">
+        <a class="btn btn--primary lead__sms" id="leadSms" href="sms:+79009736005"><svg aria-hidden="true"><use href="#i-chat"/></svg>Отправить SMS</a>
+        <button class="btn btn--primary lead__copy" id="leadCopy" type="button"><svg aria-hidden="true"><use href="#i-copy"/></svg>Скопировать заявку</button>
+        <a class="lead__to" id="leadMax" href="https://max.ru/" target="_blank" rel="noopener" aria-label="Отправить в МАКС"><svg aria-hidden="true"><use href="#i-max"/></svg><span>МАКС</span></a>
+        <a class="lead__to" id="leadVk" href="https://vk.ru/koksana22" target="_blank" rel="noopener" aria-label="Отправить во ВКонтакте"><svg aria-hidden="true"><use href="#i-vk"/></svg><span>ВК</span></a>
+      </div>
+      <p class="lead__note">Для МАКС и ВК текст заявки скопируется сам — вставьте его в чат.</p>
+    </form>
 
     <div class="contacts">
       <a class="contact contact--phone reveal" href="tel:+79009736005" data-contact="phone">
@@ -600,9 +814,10 @@
       </a>
       <a class="contact contact--avito reveal" href="https://www.avito.ru/lugansk/predlozheniya_uslug/spisanie_dolgov_bankrotstvo_3468476527" data-contact="avito" target="_blank" rel="noopener">
         <span class="contact__ico"><svg aria-hidden="true"><use href="#i-avito"/></svg></span>
-        <span class="contact__body"><b>Объявление на Авито</b><span>Описание услуги и отзывы</span></span>
+        <span class="contact__body"><b>Объявление на Авито</b><span>Описание услуги и чат</span></span>
         <span class="contact__go" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span>
       </a>
+    </div>
     </div>
 
     <p class="contacts__geo reveal"><svg aria-hidden="true"><use href="#i-home"/></svg>Работаем в Луганске и по всей ЛНР, дистанционно — с клиентами из любого города России</p>
@@ -649,6 +864,14 @@
   </button>
   <span class="fab__hint" id="fabHint">Бесплатная консультация юриста</span>
 </div>
+
+<!-- Нижняя панель связи — только на телефонах -->
+<nav class="mbar" aria-label="Быстрая связь">
+  <a class="mbar__call" href="tel:+79009736005" data-contact="phone"><svg aria-hidden="true"><use href="#i-phone"/></svg>Позвонить</a>
+  <a class="mbar__ico" href="https://max.ru/" data-contact="max" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-max"/></svg><span>МАКС</span></a>
+  <a class="mbar__ico" href="https://vk.ru/koksana22" data-contact="vk" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-vk"/></svg><span>ВК</span></a>
+  <a class="mbar__ico mbar__ico--avito" href="https://www.avito.ru/lugansk/predlozheniya_uslug/spisanie_dolgov_bankrotstvo_3468476527" data-contact="avito" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-avito"/></svg><span>Авито</span></a>
+</nav>
 
 <button class="totop" id="totop" type="button" aria-label="Наверх"><svg aria-hidden="true"><use href="#i-up"/></svg></button>
 

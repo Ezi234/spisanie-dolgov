@@ -30,6 +30,7 @@ const CONTACTS = {
   const header = $('#header');
   const bar = $('#progressBar');
   const totop = $('#totop');
+  const mbar = $('.mbar');
   let ticking = false;
 
   function onScroll() {
@@ -38,6 +39,8 @@ const CONTACTS = {
     header.classList.toggle('is-scrolled', y > 8);
     bar.style.setProperty('transform', 'scaleX(' + (max > 0 ? Math.min(y / max, 1) : 0) + ')');
     totop.classList.toggle('is-shown', y > 900);
+    // Нижняя панель на телефоне выезжает, когда кнопки первого экрана ушли вверх
+    if (mbar) mbar.classList.toggle('is-shown', y > 380);
     ticking = false;
   }
   window.addEventListener('scroll', () => {
@@ -112,6 +115,59 @@ const CONTACTS = {
     counters.forEach((c) => { if (Number(c.dataset.count)) c.textContent = '0'; co.observe(c); });
   }
 
+  /* ---------- Конфетти, когда долги «списаны» ---------- */
+  const confetti = $('#confetti');
+  function burst() {
+    if (!confetti || reduceMotion || !confetti.getContext) return;
+    const ctx = confetti.getContext('2d');
+    const r = confetti.getBoundingClientRect();
+    if (!r.width) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    confetti.width = Math.round(r.width * dpr);
+    confetti.height = Math.round(r.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const s = $('#debtStamp').getBoundingClientRect();
+    const ox = s.left + s.width / 2 - r.left;
+    const oy = s.top + s.height / 2 - r.top;
+    const colors = ['#009900', '#2fa346', '#7fdc8a', '#00a64c', '#921616', '#ffd76a', '#19baff'];
+    const parts = Array.from({ length: 90 }, () => {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.4;
+      const v = 5 + Math.random() * 8;
+      return {
+        x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v,
+        rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.4,
+        w: 6 + Math.random() * 6, h: 3 + Math.random() * 4,
+        c: colors[(Math.random() * colors.length) | 0]
+      };
+    });
+    const LIFE = 2.2;
+    const t0 = performance.now();
+    let last = t0;
+    (function frame(t) {
+      const k = Math.min((t - last) / 16.67, 3); // шаг не зависит от частоты экрана
+      last = t;
+      const age = (t - t0) / 1000;
+      ctx.clearRect(0, 0, r.width, r.height);
+      ctx.globalAlpha = Math.max(0, 1 - age / LIFE);
+      parts.forEach((p) => {
+        p.vy += 0.28 * k;
+        p.vx *= Math.pow(0.985, k);
+        p.vy *= Math.pow(0.985, k);
+        p.x += p.vx * k;
+        p.y += p.vy * k;
+        p.rot += p.vr * k;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      if (age < LIFE) requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, r.width, r.height);
+    })(t0);
+  }
+
   /* ---------- Живая карточка долгов на первом экране ----------
      Долги по очереди зачёркиваются, сумма тает до нуля,
      в конце ставится штамп «Долги списаны». Потом всё сначала. */
@@ -171,6 +227,7 @@ const CONTACTS = {
       }
       debt.classList.add('is-done');
       debtStatus.textContent = 'Процедура завершена';
+      setTimeout(burst, 180); // штамп успевает «удариться» о карточку
       await sleep(4200);
       await waitVisible();
     }
@@ -279,6 +336,15 @@ const CONTACTS = {
     });
   });
 
+  /* ---------- Мифы: переворот по нажатию ---------- */
+  $$('.myth').forEach((m) => {
+    m.addEventListener('click', () => {
+      const on = !m.classList.contains('is-flipped');
+      m.classList.toggle('is-flipped', on);
+      m.setAttribute('aria-pressed', String(on));
+    });
+  });
+
   /* ---------- Тест «Подходит ли банкротство» ---------- */
   const quiz = $('#quizBox');
   if (quiz) {
@@ -360,6 +426,27 @@ const CONTACTS = {
       });
     });
     qBack.addEventListener('click', () => { if (cur > 1) show(cur - 1); });
+
+    // Ответы теста переносятся в заявку — юристу не придётся переспрашивать
+    const toLead = $('#quizToLead');
+    if (toLead) {
+      toLead.addEventListener('click', () => {
+        // Сумма уходит в своё поле заявки, поэтому в тексте её не повторяем
+        const names = { late: 'платежи', prop: 'имущество, кроме жилья', fssp: 'приставы закрывали производство' };
+        const labels = $$('.opt.is-picked', quiz)
+          .filter((o) => names[o.dataset.q])
+          .map((o) => names[o.dataset.q] + ' — ' + o.textContent.toLowerCase());
+        const note = $('#leadNote');
+        const sum = $('#leadSum');
+        if (!note) return;
+        if (sum && answers.sum) sum.value = answers.sum;
+        note.value = ('Результаты теста на сайте: ' + labels.join('; ') + '. Итог: ' + $('#quizTitle').textContent + '.').slice(0, 400);
+        note.dispatchEvent(new Event('input'));
+        const form = $('#leadForm');
+        form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        setTimeout(() => $('#leadName').focus({ preventScroll: true }), reduceMotion ? 0 : 700);
+      });
+    }
     $('#quizRestart').addEventListener('click', () => {
       Object.keys(answers).forEach((k) => delete answers[k]);
       $$('.opt', quiz).forEach((o) => o.classList.remove('is-picked'));
@@ -418,14 +505,33 @@ const CONTACTS = {
     toastTimer = setTimeout(() => toast.classList.remove('is-shown'), 2600);
   }
 
+  const modalHint = $('.modal__hint');
+  const hintDefault = modalHint ? modalHint.textContent : '';
+  const canModal = !!(modal && typeof modal.showModal === 'function');
+
+  // Открыть МАКС: профиль, если ссылка указана, иначе — окно с номером.
+  // afterLead — окно открыто из заявки, текст уже лежит в буфере обмена.
+  function openMaxModal(afterLead) {
+    if (!canModal) return false;
+    if (modalHint) {
+      modalHint.textContent = afterLead
+        ? 'Текст заявки уже скопирован: найдите нас по номеру и вставьте его в чат.'
+        : hintDefault;
+    }
+    setFab(false);
+    if (!modal.open) modal.showModal();
+    return true;
+  }
+
   if (CONTACTS.maxProfile) {
     maxLinks.forEach((a) => a.setAttribute('href', CONTACTS.maxProfile));
-  } else if (modal && typeof modal.showModal === 'function') {
+  } else if (canModal) {
     maxLinks.forEach((a) => a.addEventListener('click', (e) => {
       e.preventDefault();
-      setFab(false);
-      modal.showModal();
+      openMaxModal(false);
     }));
+  }
+  if (canModal) {
     $$('[data-close]', modal).forEach((b) => b.addEventListener('click', () => modal.close()));
     // Нажатие по затемнению вокруг окна закрывает его
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
@@ -433,32 +539,120 @@ const CONTACTS = {
     if (!fine) $('#openMax').setAttribute('href', 'https://max.ru/');
   }
 
-  async function copyPhone() {
-    const text = CONTACTS.phone;
+  // Копирование: сначала синхронно (надёжно сразу после нажатия,
+  // даже если следом откроется новая вкладка), потом через Clipboard API.
+  function copySync(text) {
+    const t = document.createElement('textarea');
+    t.value = text;
+    t.setAttribute('readonly', '');
+    t.className = 'offscreen';
+    document.body.appendChild(t);
+    t.select();
+    t.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    t.remove();
+    return ok;
+  }
+  async function copyText(text) {
+    if (copySync(text)) return true;
     try {
       await navigator.clipboard.writeText(text);
       return true;
-    } catch (err) {
-      const t = document.createElement('textarea');
-      t.value = text;
-      t.setAttribute('readonly', '');
-      t.className = 'sprite';
-      document.body.appendChild(t);
-      t.select();
-      let ok = false;
-      try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
-      t.remove();
-      return ok;
+    } catch (e) {
+      return false;
     }
   }
+
   const copyBtn = $('#copyPhone');
   if (copyBtn) {
     copyBtn.addEventListener('click', async () => {
-      const ok = await copyPhone();
+      const ok = await copyText(CONTACTS.phone);
       $('span', copyBtn).textContent = ok ? 'Номер скопирован' : CONTACTS.phoneText;
       say(ok ? 'Номер скопирован — вставьте его в поиск МАКС' : 'Скопируйте номер вручную: ' + CONTACTS.phoneText);
       setTimeout(() => { $('span', copyBtn).textContent = 'Скопировать номер'; }, 2600);
     });
+  }
+
+  /* ---------- Заявка без сервера ----------
+     Страница собирает текст сообщения из полей и показывает его в «пузыре».
+     SMS открывается с готовым текстом, для МАКС и ВК текст копируется. */
+  const lead = $('#leadForm');
+  if (lead) {
+    const nameI = $('#leadName');
+    const sumS = $('#leadSum');
+    const noteT = $('#leadNote');
+    const preview = $('#leadPreview');
+    const err = $('#leadErr');
+    const sms = $('#leadSms');
+    const toMax = $('#leadMax');
+    const toVk = $('#leadVk');
+    const clean = (s, n) => s.replace(/[\u0000-\u0009\u000B-\u001F]/g, '').replace(/[ \t]+/g, ' ').trim().slice(0, n);
+
+    function message() {
+      const name = clean(nameI.value, 40);
+      const sum = sumS.value ? sumS.options[sumS.selectedIndex].text : '';
+      const note = clean(noteT.value, 400);
+      const lines = ['Здравствуйте! ' + (name ? 'Меня зовут ' + name + '. ' : '') + 'Хочу бесплатную консультацию по списанию долгов.'];
+      if (sum) lines.push('Сумма долгов: ' + sum + '.');
+      if (note) lines.push(note);
+      return lines.join('\n');
+    }
+    function update(bump) {
+      const m = message();
+      preview.textContent = m;
+      sms.setAttribute('href', 'sms:' + CONTACTS.phone + '?body=' + encodeURIComponent(m));
+      if (bump && !reduceMotion) {
+        preview.classList.remove('is-bump');
+        void preview.offsetWidth; // перезапуск анимации
+        preview.classList.add('is-bump');
+      }
+    }
+    function setError(on) {
+      nameI.closest('.field').classList.toggle('is-error', on);
+      nameI.setAttribute('aria-invalid', String(on));
+      err.hidden = !on;
+    }
+    function valid() {
+      const ok = clean(nameI.value, 40).length >= 2;
+      setError(!ok);
+      if (!ok) nameI.focus();
+      return ok;
+    }
+
+    [nameI, noteT].forEach((el) => el.addEventListener('input', () => {
+      if (el === nameI && clean(nameI.value, 40).length >= 2) setError(false);
+      update(true);
+    }));
+    sumS.addEventListener('change', () => update(true));
+    lead.addEventListener('submit', (e) => e.preventDefault());
+
+    sms.addEventListener('click', (e) => { if (!valid()) e.preventDefault(); });
+
+    $('#leadCopy').addEventListener('click', async () => {
+      if (!valid()) return;
+      const ok = await copyText(message());
+      say(ok ? 'Заявка скопирована — отправьте её в МАКС или ВКонтакте' : 'Не получилось скопировать — выделите текст вручную');
+    });
+
+    toVk.addEventListener('click', (e) => {
+      if (!valid()) { e.preventDefault(); return; }
+      copySync(message()) || copyText(message());
+      say('Текст заявки скопирован — вставьте его в сообщение');
+    });
+
+    if (CONTACTS.maxProfile) toMax.setAttribute('href', CONTACTS.maxProfile);
+    toMax.addEventListener('click', (e) => {
+      if (!valid()) { e.preventDefault(); return; }
+      copySync(message()) || copyText(message());
+      if (!CONTACTS.maxProfile && openMaxModal(true)) {
+        e.preventDefault();
+      } else {
+        say('Текст заявки скопирован — вставьте его в чат');
+      }
+    });
+
+    update(false);
   }
 
   /* ---------- Год в подвале ---------- */
