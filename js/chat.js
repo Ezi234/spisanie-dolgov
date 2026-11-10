@@ -186,10 +186,10 @@
   }
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-  async function botSay(list) {
+  async function botSay(list, instant) {
     for (const m of list) {
       typing(true);
-      await wait(reduce ? 150 : Math.min(1400, 380 + m.text.length * 4));
+      await wait(instant || reduce ? 120 : Math.min(1400, 380 + m.text.length * 4));
       typing(false);
       const rec = { from: 'bot', text: m.text, quick: m.quick || [], card: m.card || null };
       history.push(rec);
@@ -210,8 +210,75 @@
     bubble(rec, true);
     scrollDown();
     save();
-    try { await botSay(bot.reply(text)); } finally { busy = false; }
+    try {
+      // Сначала отвечает свой «мозг»: кнопки, сценарии, передача юристу — это быстро и бесплатно.
+      // Вопросы своими словами уходят ИИ; если он молчит — показываем ответ из базы.
+      const local = bot.reply(text);
+      if (aiOn() && wantsAi(local, text)) {
+        typing(true);
+        const ai = await askAi();
+        typing(false);
+        if (ai) {
+          bot.noteAi();
+          await botSay([{ text: ai, quick: aiQuick(local) }], true);
+          return;
+        }
+      }
+      await botSay(local);
+    } finally { busy = false; }
   }
+
+  /* ---------- ИИ (YandexGPT через облачную функцию) ----------
+     Адрес функции — ChatBrain.CFG.aiEndpoint. Пока он пустой, чат работает без ИИ. */
+  const CFG = window.ChatBrain.CFG;
+  let aiFails = 0;
+  const aiOn = () => !!CFG.aiEndpoint && aiFails < 3;
+  function wantsAi(local, text) {
+    const m = local[local.length - 1] || {};
+    if (local.some((x) => x.card)) return false;
+    if (m.kind === 'kb' || m.kind === 'miss' || m.kind === 'offtopic') return true;
+    if (m.kind === 'route') return text.length > 60;     // длинное описание ситуации — ИИ разберёт лучше
+    return false;                                         // кнопки, сценарии, привет/спасибо — сами
+  }
+  function aiQuick(local) {
+    const m = local[local.length - 1] || {};
+    const lawyer = 'Задать вопрос юристу';
+    const list = m.kind === 'kb' ? (m.quick || []).filter((q) => !/^(да|нет)/i.test(q)).slice(0, 2) : [];
+    if (list.indexOf(lawyer) < 0) list.push(lawyer);
+    return list;
+  }
+  async function askAi() {
+    const messages = history
+      .filter((m) => m.text)
+      .slice(-10)
+      .map((m) => ({ role: m.from === 'me' ? 'user' : 'assistant', text: m.text.replace(/\*\*/g, '').slice(0, 1200) }));
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 25000);
+    try {
+      // text/plain — «простой» запрос: браузер не делает лишний предварительный запрос OPTIONS
+      const res = await fetch(CFG.aiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify({ messages }),
+        credentials: 'omit',
+        signal: ctrl.signal
+      });
+      if (res.status === 429) { aiFails = 3; return null; }   // лимит — до конца визита отвечает база
+      if (!res.ok) { aiFails++; return null; }
+      const data = await res.json();
+      const t = String((data && data.text) || '').replace(/^\s*[-*]\s+/gm, '• ').trim();
+      if (!t) { aiFails++; return null; }
+      aiFails = 0;
+      return t.slice(0, 2500);
+    } catch (e) {
+      aiFails++;
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  const foot = $('.chat__foot', chat);
+  if (CFG.aiEndpoint && foot) foot.textContent = 'Отвечает ИИ-помощник — он может ошибаться. Вашу ситуацию юрист разберёт бесплатно. Не пишите в чат паспортные данные.';
 
   /* ---------- Строка состояния: часы приёма ---------- */
   function status() {
