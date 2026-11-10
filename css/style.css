@@ -921,6 +921,7 @@ textarea.field__input { resize: vertical; min-height: 88px; line-height: 1.5; }
 .chat__bubble li::before { content: ""; position: absolute; left: 3px; top: .62em; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 .chat__bubble b { font-weight: 700; }
 .chat__bubble a { color: var(--green-dark); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.chat__bubble a.chat__link { white-space: normal; overflow-wrap: anywhere; font-weight: 600; }
 .chat__typing .chat__bubble { display: flex; gap: 4px; padding: 14px; }
 .chat__typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: typingDot 1s infinite ease-in-out; }
 .chat__typing i:nth-child(2) { animation-delay: .15s; }

@@ -38,20 +38,36 @@
   let busy = false;
 
   /* ---------- Текст бота: абзацы, списки «• », **жирный**, телефоны ---------- */
-  function inline(el, s) {
-    const re = /\*\*(.+?)\*\*|(\+7 \d{3} \d{3}-\d{2}-\d{2})/g;
+  // Ссылки — только https и только на официальные сайты из ответов (ссылки из чужого текста не делаем)
+  const SAFE_HOST = /^(?:[a-z0-9-]+\.)*(fssp\.gov\.ru|gosuslugi\.ru|nbki\.ru|bki-okb\.ru|nalog\.ru|sudrf\.ru|arbitr\.ru|fedresurs\.ru|cbr\.ru|vk\.ru|max\.ru)$/i;
+  function inline(el, s, fromUser) {
+    const re = /\*\*(.+?)\*\*|(\+7 \d{3} \d{3}-\d{2}-\d{2})|(https:\/\/[^\s)]+[^\s).,;:!?»])/g;
     let last = 0, m;
     while ((m = re.exec(s))) {
       if (m.index > last) el.append(s.slice(last, m.index));
       if (m[1]) {
         const b = document.createElement('b');
-        inline(b, m[1]);
+        inline(b, m[1], fromUser);
         el.append(b);
-      } else {
+      } else if (m[2]) {
         const a = document.createElement('a');
         a.href = 'tel:' + m[2].replace(/[^\d+]/g, '');
         a.textContent = m[2];
         el.append(a);
+      } else {
+        let host = '';
+        try { host = new URL(m[3]).hostname; } catch (e) { host = ''; }
+        if (!fromUser && SAFE_HOST.test(host)) {
+          const a = document.createElement('a');
+          a.href = m[3];
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.className = 'chat__link';
+          a.textContent = m[3].replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '');
+          el.append(a);
+        } else {
+          el.append(m[3]);
+        }
       }
       last = re.lastIndex;
     }
