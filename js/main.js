@@ -479,7 +479,12 @@ const CONTACTS = {
     fabBtn.setAttribute('aria-expanded', String(open));
     if (open) fabHint.classList.remove('is-shown');
   }
-  fabBtn.addEventListener('click', (e) => { e.stopPropagation(); setFab(!fab.classList.contains('is-open')); });
+  // Если чат загрузился — кнопка открывает чат, иначе работает старое меню контактов
+  fabBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (window.ChatUI) { setFab(false); fabHint.classList.remove('is-shown'); window.ChatUI.toggle(); return; }
+    setFab(!fab.classList.contains('is-open'));
+  });
   document.addEventListener('click', (e) => { if (!fab.contains(e.target)) setFab(false); });
   setTimeout(() => {
     if (!fab.classList.contains('is-open')) fabHint.classList.add('is-shown');
@@ -666,6 +671,9 @@ const CONTACTS = {
 
     update(false);
   }
+
+  /* ---------- Общие функции для чата (js/chat.js) ---------- */
+  window.SiteKit = { copyText, copySync, say, openMaxModal, contacts: CONTACTS, fine };
 
   /* ---------- Год в подвале ---------- */
   const year = $('#year');

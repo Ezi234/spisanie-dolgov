@@ -100,6 +100,12 @@
   <symbol id="i-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></symbol>
   <symbol id="i-chat" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 8.5h8M8 12h5"/></symbol>
+  <symbol id="i-bot" viewBox="0 0 100 100">
+    <rect width="100" height="100" rx="26" fill="url(#leafGrad)"/>
+    <path fill="#fff" d="M30 28h40a9 9 0 0 1 9 9v22a9 9 0 0 1-9 9H49l-13 10v-10h-6a9 9 0 0 1-9-9V37a9 9 0 0 1 9-9z"/>
+    <circle cx="38" cy="48" r="4.6" fill="#009900"/><circle cx="50" cy="48" r="4.6" fill="#009900"/><circle cx="62" cy="48" r="4.6" fill="#009900"/>
+  </symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round" d="M4 12L20 4l-6.5 16-2.6-6.9zM10.9 13.1L20 4"/></symbol>
   <symbol id="i-bank" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M3 9.5L12 4l9 5.5zM5 10v7M9.7 10v7M14.3 10v7M19 10v7M3 20h18"/></symbol>
   <symbol id="i-card" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path stroke="currentColor" stroke-width="1.8" d="M2.5 9.5h19M6 15h4"/></symbol>
   <symbol id="i-coins" viewBox="0 0 24 24"><ellipse cx="9" cy="7" rx="6" ry="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" d="M3 7v4c0 1.4 2.7 2.6 6 2.6s6-1.2 6-2.6V7M3 11v4c0 1.4 2.7 2.6 6 2.6M15 12.5c3.3 0 6 1.2 6 2.6s-2.7 2.6-6 2.6-6-1.2-6-2.6M9 15.1v4c0 1.4 2.7 2.6 6 2.6s6-1.2 6-2.6v-4"/></symbol>
@@ -708,7 +714,8 @@
   <div class="container faq-wrap">
     <div class="faq-wrap__head">
       <h2 class="h2 reveal">Частые вопросы о банкротстве физических лиц</h2>
-      <p class="section__lead reveal">Не нашли свой вопрос? Задайте его напрямую — ответим бесплатно.</p>
+      <p class="section__lead reveal">Не нашли свой вопрос? Спросите помощника в чате — он отвечает сразу, — или напишите юристу напрямую.</p>
+      <button class="btn btn--primary faq-wrap__chat reveal" type="button" data-chat-open><svg aria-hidden="true"><use href="#i-chat"/></svg>Спросить помощника</button>
       <div class="faq-wrap__socials reveal">
         <a class="iconbtn" href="https://max.ru/" data-contact="max" target="_blank" rel="noopener" aria-label="Написать в МАКС"><svg aria-hidden="true"><use href="#i-max"/></svg></a>
         <a class="iconbtn" href="https://vk.ru/koksana22" data-contact="vk" target="_blank" rel="noopener" aria-label="Написать во ВКонтакте"><svg aria-hidden="true"><use href="#i-vk"/></svg></a>
@@ -871,16 +878,41 @@
     <a class="fab__item" role="menuitem" href="https://vk.ru/koksana22" data-contact="vk" target="_blank" rel="noopener"><span>ВКонтакте</span><svg aria-hidden="true"><use href="#i-vk"/></svg></a>
     <a class="fab__item fab__item--avito" role="menuitem" href="https://www.avito.ru/lugansk/predlozheniya_uslug/spisanie_dolgov_bankrotstvo_3468476527" data-contact="avito" target="_blank" rel="noopener"><span>Авито</span><svg aria-hidden="true"><use href="#i-avito"/></svg></a>
   </div>
-  <button class="fab__btn" id="fabBtn" type="button" aria-expanded="false" aria-controls="fabMenu" aria-label="Связаться с юристом">
+  <button class="fab__btn" id="fabBtn" type="button" aria-expanded="false" aria-controls="fabMenu" aria-label="Чат с помощником по долгам">
     <svg class="fab__chat" aria-hidden="true"><use href="#i-chat"/></svg>
     <svg class="fab__x" aria-hidden="true"><use href="#i-close"/></svg>
   </button>
-  <span class="fab__hint" id="fabHint">Бесплатная консультация юриста</span>
+  <span class="fab__hint" id="fabHint">Есть вопрос о долгах? Спросите в чате</span>
 </div>
+
+<!-- ================= ЧАТ С ПОМОЩНИКОМ =================
+     Ответы собирает js/chat-brain.js прямо в браузере — без сервера.
+     Окно открывают плавающая кнопка, кнопка «Чат» на телефоне
+     и все элементы с атрибутом data-chat-open. -->
+<section class="chat" id="chat" aria-label="Чат с помощником по долгам" hidden>
+  <header class="chat__head">
+    <svg class="chat__ava" aria-hidden="true"><use href="#i-bot"/></svg>
+    <div class="chat__who">
+      <b>Помощник по долгам</b>
+      <span class="chat__status" id="chatStatus">Отвечает сразу</span>
+    </div>
+    <a class="chat__icon" href="tel:+79009736005" data-contact="phone" data-call aria-label="Позвонить юристу" title="Позвонить"><svg aria-hidden="true"><use href="#i-phone"/></svg></a>
+    <button class="chat__icon" type="button" id="chatClose" aria-label="Закрыть чат" title="Закрыть"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+  </header>
+  <div class="chat__log" id="chatLog" role="log" aria-live="polite" aria-relevant="additions"></div>
+  <div class="chat__quick" id="chatQuick" aria-label="Быстрые вопросы"></div>
+  <form class="chat__form" id="chatForm" autocomplete="off">
+    <label class="offscreen" for="chatInput">Ваш вопрос</label>
+    <textarea class="chat__input" id="chatInput" rows="1" maxlength="1000" placeholder="Напишите вопрос…" enterkeyhint="send"></textarea>
+    <button class="chat__send" type="submit" aria-label="Отправить"><svg aria-hidden="true"><use href="#i-send"/></svg></button>
+  </form>
+  <p class="chat__foot">Помощник отвечает на общие вопросы. Вашу ситуацию юрист разберёт бесплатно.</p>
+</section>
 
 <!-- Нижняя панель связи — только на телефонах -->
 <nav class="mbar" aria-label="Быстрая связь">
   <a class="mbar__call" href="tel:+79009736005" data-contact="phone" data-call><svg aria-hidden="true"><use href="#i-phone"/></svg>Позвонить</a>
+  <button class="mbar__ico" type="button" data-chat-open><svg aria-hidden="true"><use href="#i-bot"/></svg><span>Чат</span></button>
   <a class="mbar__ico" href="https://max.ru/" data-contact="max" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-max"/></svg><span>МАКС</span></a>
   <a class="mbar__ico" href="https://vk.ru/koksana22" data-contact="vk" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-vk"/></svg><span>ВК</span></a>
   <a class="mbar__ico mbar__ico--avito" href="https://www.avito.ru/lugansk/predlozheniya_uslug/spisanie_dolgov_bankrotstvo_3468476527" data-contact="avito" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-avito"/></svg><span>Авито</span></a>
@@ -922,5 +954,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="js/main.js" defer></script>
+<script src="js/chat-brain.js" defer></script>
+<script src="js/chat.js" defer></script>
 </body>
 </html>
